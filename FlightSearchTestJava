@@ -1,0 +1,71 @@
+package com.ticketbooking.test;
+
+import com.ticketbooking.pages.flightfinderpage;
+import com.ticketbooking.pages.loginpage;
+import org.openqa.selenium.webdriver;
+import org.openqa.selenium.chrome.chromedriver;
+import org.openqa.selenium.chrome.chromeoptions;
+import org.testng.annotations.*;
+
+import java.util.hashmap;
+import java.util.map;
+
+import static org.testng.assert.asserttrue;
+
+public class flightsearchtest {
+    webdriver driver;
+    loginpage loginpage;
+    flightfinderpage flightfinderpage;
+
+    @beforemethod
+    public void setup() {
+        system.setproperty("webdriver.chrome.driver", "chromedriver.exe");
+
+        chromeoptions options = new chromeoptions();
+        options.addarguments("--disable-notifications");
+        options.addarguments("--disable-popup-blocking");
+        options.addarguments("--disable-save-password-bubble");
+        options.addarguments("--disable-infobars");
+        options.addarguments("--disable-extensions");
+        options.addarguments("--start-maximized");
+        options.addarguments("--remote-allow-origins=*");
+
+        map<string, object> prefs = new hashmap<>();
+        prefs.put("credentials_enable_service", false);
+        prefs.put("profile.password_manager_enabled", false);
+        options.setexperimentaloption("prefs", prefs);
+        options.setexperimentaloption("excludeswitches", new string[]{"enable-automation"});
+        options.setexperimentaloption("useautomationextension", false);
+
+        driver = new chromedriver(options);
+        driver.manage().window().maximize();
+        driver.get("https://demo.guru99.com/test/newtours/");
+
+        loginpage = new loginpage(driver);
+        flightfinderpage = new flightfinderpage(driver);
+    }
+
+    @test
+    public void testflightsearch() {
+        // step 1: login
+        loginpage.login("mercury", "mercury");
+
+        // assert after login
+        asserttrue(driver.gettitle().contains("mercury tours"), "login failed or incorrect title");
+
+        // step 2: navigate to flight finder page explicitly
+        driver.get("https://demo.guru99.com/test/newtours/reservation.php");
+
+        // assert page title for flight finder page
+        asserttrue(driver.gettitle().contains("find a flight"), "not on find a flight page");
+
+        // step 3: perform flight search
+        flightfinderpage.selecttriptype();
+        flightfinderpage.searchflights("london", "new york");
+    }
+
+   // @aftermethod
+  //  public void teardown() {
+      //  driver.quit();
+  // }
+}
